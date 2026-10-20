@@ -20,9 +20,9 @@ app.use('/api/qans', qanRoutes);
 app.use('/api/eightd', eightdRoutes);
 
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'IQDWS Backend is running perfectly!' });
+    res.json({ status: 'ok' });
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    console.log(`🚀 Server is running on port ${PORT}`);
 });
