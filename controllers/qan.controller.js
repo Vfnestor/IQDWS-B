@@ -22,14 +22,13 @@ exports.createQAN = (req, res) => {
         title: req.body.title,
         level: req.body.level,
         penalty: req.body.penalty,
-        status: 'pending_dept', // مراحل: pending_dept -> pending_office -> sent -> responded
+        status: 'pending_dept',
         createdBy: req.user.role,
         createdAt: new Date().toISOString()
     };
 
     db.qans.push(newQAN);
     
-    // اصلاح باگ: وضعیت ایراد در این مرحله باید qan_pending باشد نه qan_sent
     if (db.defects) {
         const defectIdx = db.defects.findIndex(d => d.id === req.body.defectId);
         if (defectIdx !== -1) {
@@ -53,19 +52,12 @@ exports.updateQANStatus = (req, res) => {
     const newStatus = req.body.status;
     db.qans[index].status = newStatus;
 
-    // اصلاح باگ: اگر رئیس اداره تایید نهایی کرد (sent)، وضعیت ایراد هم به qan_sent تغییر کند
-    if (newStatus === 'sent') {
-        const defectIdx = db.defects.findIndex(d => d.id === db.qans[index].defectId);
-        if (defectIdx !== -1) {
-            db.defects[defectIdx].status = 'qan_sent';
-        }
-    }
-    // اگر سازنده پاسخ داد (responded)، وضعیت ایراد به response_review تغییر کند
-    if (newStatus === 'responded') {
-        const defectIdx = db.defects.findIndex(d => d.id === db.qans[index].defectId);
-        if (defectIdx !== -1) {
-            db.defects[defectIdx].status = 'response_review';
-        }
+    // بروزرسانی وضعیت ایراد مرتبط بر اساس وضعیت اخطار
+    const defectIdx = db.defects.findIndex(d => d.id === db.qans[index].defectId);
+    if (defectIdx !== -1) {
+        if (newStatus === 'sent') db.defects[defectIdx].status = 'qan_sent';
+        if (newStatus === 'responded') db.defects[defectIdx].status = 'response_review';
+        if (newStatus === 'closed') db.defects[defectIdx].status = 'closed'; // بستن نهایی ایراد
     }
 
     writeDB(db);
