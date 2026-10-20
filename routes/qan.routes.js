@@ -4,6 +4,7 @@ const qanController = require('../controllers/qan.controller');
 const auth = require('../middlewares/auth');
 
 router.get('/', auth, qanController.getQANs);
+router.get('/:id', auth, qanController.getQANById);
 router.post('/', auth, qanController.createQAN);
 router.put('/:id/status', auth, qanController.updateQANStatus);
 
