@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { connectDB } = require('./config/db');
+const { connectDB } = require('./config/db'); // ایمپورت تابع connectDB
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 connectDB();
 
 app.use(cors());
-// اصلاح حیاتی: افزایش محدودیت حجم برای دریافت عکس‌های Base64
+// افزایش محدودیت حجم برای دریافت عکس‌های Base64
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
