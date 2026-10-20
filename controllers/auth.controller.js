@@ -7,9 +7,12 @@ exports.login = (req, res) => {
         return res.status(400).json({ error: 'نقش و سامانه الزامی است.' });
     }
 
+    // اگر متغیر محیطی در رندر تنظیم نشده بود، از این کلید پیش‌فرض استفاده می‌کند
+    const secretKey = process.env.JWT_SECRET || 'iqdws_ultra_secret_key_2026';
+
     const token = jwt.sign(
         { role, app }, 
-        process.env.JWT_SECRET, 
+        secretKey, 
         { expiresIn: '24h' }
     );
 
