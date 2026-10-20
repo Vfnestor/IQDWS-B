@@ -19,6 +19,7 @@ exports.createQAN = (req, res) => {
     const newQAN = {
         id: 'QAN-' + Date.now(),
         defectId: req.body.defectId,
+        supplierId: req.body.supplierId || 'SUP-001', // برای نسخه دمو، سازنده پیش‌فرض
         title: req.body.title,
         level: req.body.level,
         penalty: req.body.penalty,
@@ -52,12 +53,11 @@ exports.updateQANStatus = (req, res) => {
     const newStatus = req.body.status;
     db.qans[index].status = newStatus;
 
-    // بروزرسانی وضعیت ایراد مرتبط بر اساس وضعیت اخطار
     const defectIdx = db.defects.findIndex(d => d.id === db.qans[index].defectId);
     if (defectIdx !== -1) {
         if (newStatus === 'sent') db.defects[defectIdx].status = 'qan_sent';
         if (newStatus === 'responded') db.defects[defectIdx].status = 'response_review';
-        if (newStatus === 'closed') db.defects[defectIdx].status = 'closed'; // بستن نهایی ایراد
+        if (newStatus === 'closed') db.defects[defectIdx].status = 'closed'; 
     }
 
     writeDB(db);
