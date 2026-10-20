@@ -10,11 +10,12 @@ const { connectDB } = require('./config/db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// تنظیمات صریح CORS برای اجازه دادن به تمام هدرها و متدها
+// تنظیمات کامل CORS برای اجازه دادن به تمام هدرها، متدها و درخواست‌های Preflight
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200
 }));
 
 app.use(express.json({ limit: '50mb' }));
