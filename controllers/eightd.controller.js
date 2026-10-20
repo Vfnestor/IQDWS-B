@@ -24,13 +24,15 @@ exports.save8D = (req, res) => {
         d3_containment: req.body.d3_containment,
         d4_root_cause: req.body.d4_root_cause,
         d5_capa: req.body.d5_capa,
+        d6_implementation: req.body.d6_implementation,
+        d7_prevention: req.body.d7_prevention,
+        d8_lesson: req.body.d8_lesson,
         createdBy: req.user.role,
         createdAt: new Date().toISOString()
     };
 
     db.eightd.push(new8D);
     
-    // تغییر وضعیت اخطار به دریافت پاسخ
     const qanIndex = db.qans.findIndex(q => q.id === req.body.qanId);
     if (qanIndex !== -1) {
         db.qans[qanIndex].status = 'responded';
