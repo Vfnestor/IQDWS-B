@@ -1,5 +1,5 @@
-// اجبار Node.js به استفاده از IPv4 برای رفع مشکل ENOTFOUND
 const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 dns.setDefaultResultOrder('ipv4first');
 
 require('dotenv').config();
@@ -10,11 +10,16 @@ const { connectDB } = require('./config/db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// تنظیمات صریح CORS برای اجازه دادن به تمام هدرها و متدها
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Routes
 const authRoutes = require('./routes/auth.routes');
 const defectRoutes = require('./routes/defect.routes');
 const qanRoutes = require('./routes/qan.routes');
@@ -33,7 +38,6 @@ app.use('/api/settings', settingsRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', env: process.env.MONGODB_URI ? 'Cloud' : 'Local' }));
 
-// ابتدا سرور روشن می‌شود، سپس به دیتابیس وصل می‌شویم
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     connectDB().catch(err => console.error("DB Error:", err));
