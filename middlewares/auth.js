@@ -8,9 +8,10 @@ module.exports = (req, res, next) => {
     }
 
     try {
-        // اصلاح باگ: استخراج صحیح توکن بدون حساسیت به حروف بزرگ و کوچک کلمه Bearer
         const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const secretKey = process.env.JWT_SECRET || 'iqdws_ultra_secret_key_2026';
+        
+        const decoded = jwt.verify(token, secretKey);
         req.user = decoded;
         next();
     } catch (err) {
