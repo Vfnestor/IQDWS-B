@@ -3,7 +3,6 @@ const { readDB } = require('../config/db');
 exports.getSuppliers = (req, res) => {
     const db = readDB();
     
-    // لیست پایه سازندگان (در دیتابیس واقعی این اطلاعات از جدول Suppliers خوانده می‌شود)
     let suppliers = db.suppliers || [
         { id: 'SUP-001', name: 'قطعه‌سازی ایران‌خودرو', tier: 1, baseScore: 95 },
         { id: 'SUP-002', name: 'پلاستیک‌سازی البرز', tier: 1, baseScore: 92 },
@@ -12,12 +11,10 @@ exports.getSuppliers = (req, res) => {
 
     const qans = db.qans || [];
     
-    // محاسبه نمره پویا بر اساس اخطارها (شبیه‌سازی فرمول نمره‌دهی)
     suppliers = suppliers.map(sup => {
-        // فعلاً برای سادگی، اخطارها را به سازنده اول نسبت می‌دهیم
-        // در نسخه نهایی، کلید خارجی supplierId در QAN وجود خواهد داشت
         let penaltyScore = 0;
         qans.forEach(q => {
+            // فقط اخطارهای باز (بسته نشده) جریمه دارند
             if (q.status !== 'closed') {
                 if (q.level === 'L3') penaltyScore += 15;
                 else if (q.level === 'L2') penaltyScore += 8;
