@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const DefectSchema = new mongoose.Schema({
     title: String, vin: String, severity: String, qty: Number, desc: String,
-    imageBase64: String, // فیلد جدید برای ذخیره عکس فشرده‌شده
+    imageBase64: String, // فیلد عکس
     status: { type: String, default: 'registered' }, qanId: String,
     createdBy: String, createdAt: { type: Date, default: Date.now }
 });
