@@ -29,12 +29,12 @@ exports.createQAN = (req, res) => {
 
     db.qans.push(newQAN);
     
-    // اتصال اخطار به ایراد
+    // اصلاح باگ: وضعیت ایراد در این مرحله باید qan_pending باشد نه qan_sent
     if (db.defects) {
         const defectIdx = db.defects.findIndex(d => d.id === req.body.defectId);
         if (defectIdx !== -1) {
             db.defects[defectIdx].qanId = newQAN.id;
-            db.defects[defectIdx].status = 'qan_sent';
+            db.defects[defectIdx].status = 'qan_pending'; 
         }
     }
 
@@ -50,7 +50,24 @@ exports.updateQANStatus = (req, res) => {
         return res.status(404).json({ error: 'اخطار یافت نشد' });
     }
 
-    db.qans[index].status = req.body.status;
+    const newStatus = req.body.status;
+    db.qans[index].status = newStatus;
+
+    // اصلاح باگ: اگر رئیس اداره تایید نهایی کرد (sent)، وضعیت ایراد هم به qan_sent تغییر کند
+    if (newStatus === 'sent') {
+        const defectIdx = db.defects.findIndex(d => d.id === db.qans[index].defectId);
+        if (defectIdx !== -1) {
+            db.defects[defectIdx].status = 'qan_sent';
+        }
+    }
+    // اگر سازنده پاسخ داد (responded)، وضعیت ایراد به response_review تغییر کند
+    if (newStatus === 'responded') {
+        const defectIdx = db.defects.findIndex(d => d.id === db.qans[index].defectId);
+        if (defectIdx !== -1) {
+            db.defects[defectIdx].status = 'response_review';
+        }
+    }
+
     writeDB(db);
     res.json(db.qans[index]);
 };
