@@ -1,3 +1,7 @@
+// اجبار Node.js به استفاده از IPv4 برای رفع مشکل ENOTFOUND
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -6,10 +10,7 @@ const { connectDB } = require('./config/db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-connectDB();
-
 app.use(cors());
-// اجازه دادن به آپلود عکس تا حجم 50 مگابایت
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -32,4 +33,8 @@ app.use('/api/settings', settingsRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', env: process.env.MONGODB_URI ? 'Cloud' : 'Local' }));
 
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// ابتدا سرور روشن می‌شود، سپس به دیتابیس وصل می‌شویم
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    connectDB().catch(err => console.error("DB Error:", err));
+});
