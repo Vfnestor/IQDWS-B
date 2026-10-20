@@ -1,7 +1,6 @@
 const { readDB, writeDB } = require('../config/db');
 const { Defect } = require('../models');
 
-// دریافت لیست ایرادها
 exports.getDefects = async (req, res) => {
     if (process.env.MONGODB_URI) {
         const defects = await Defect.find().sort({ createdAt: -1 });
@@ -10,29 +9,32 @@ exports.getDefects = async (req, res) => {
     res.json(readDB().defects || []);
 };
 
-// ثبت ایراد جدید
 exports.createDefect = async (req, res) => {
-    const newDefect = { 
-        ...req.body, 
-        status: 'registered', 
-        createdBy: req.user.role, 
-        createdAt: new Date().toISOString() 
-    };
-    
-    if (process.env.MONGODB_URI) {
-        const saved = await new Defect(newDefect).save();
-        return res.status(201).json(saved);
+    try {
+        const newDefect = { 
+            ...req.body, 
+            status: 'registered', 
+            createdBy: req.user.role, 
+            createdAt: new Date().toISOString() 
+        };
+        
+        if (process.env.MONGODB_URI) {
+            const saved = await new Defect(newDefect).save();
+            return res.status(201).json(saved);
+        }
+        
+        const db = readDB();
+        if (!db.defects) db.defects = [];
+        newDefect.id = 'DEF-' + Date.now();
+        db.defects.push(newDefect);
+        writeDB(db);
+        res.status(201).json(newDefect);
+    } catch (error) {
+        console.error("Error creating defect:", error);
+        res.status(500).json({ error: 'خطای داخلی سرور. لطفاً لاگ‌ها را بررسی کنید.' });
     }
-    
-    const db = readDB();
-    if (!db.defects) db.defects = [];
-    newDefect.id = 'DEF-' + Date.now();
-    db.defects.push(newDefect);
-    writeDB(db);
-    res.status(201).json(newDefect);
 };
 
-// بروزرسانی ایراد (همان تابعی که جا افتاده بود)
 exports.updateDefect = async (req, res) => {
     if (process.env.MONGODB_URI) {
         const updated = await Defect.findByIdAndUpdate(req.params.id, req.body, { new: true });
