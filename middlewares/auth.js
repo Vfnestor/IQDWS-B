@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
-    // اجازه دادن به مرورگر برای بررسی‌های اولیه CORS
     if (req.method === 'OPTIONS') {
         return res.sendStatus(200);
     }
